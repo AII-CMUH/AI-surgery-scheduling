@@ -5,6 +5,7 @@ library(onehot);library(reshape2);library(DescTools);library(mlbench) ;library(p
 
 set.seed(1234)
 
+# Read train, validation and test data sets
 Train <- read.csv("/aaron/Scheduling/Data/Train.csv", header = TRUE)
 Validation <- read.csv("/aaron/Scheduling/Data/Validation.csv", header = TRUE)
 Test <- read.csv("/aaron/Scheduling/Data/Test.csv", header = TRUE)
@@ -17,23 +18,25 @@ ALL.data <- rbind(Train,Validation,Test);dim(ALL.data)
 
 ALL.data$Key <- paste0(ALL.data$DATE,"_",ALL.data$PatientNo)
 
-## Procedures
+# Procedure
 Procedure <- ALL.data %>% select(Key, Proced1, Proced2, Proced3, Proced4, Proced5, Proced6)
 ALL.data %<>% select(-Proced1, -Proced2, -Proced3, -Proced4, -Proced5, -Proced6)
 colnames(Procedure) <- c('Key','Proced1','Proced2','Proced3','Proced4','Proced5','Proced6')
 PCD <- dcast(melt(Procedure ,id.var="Key"), Key ~ value, length) %>% select(-'NA');dim(PCD)
 
-## Diagnosis code (ICD-10 code)
+# Diagnosis code (ICD-10 code)
 Diagnosis <- ALL.data %>% select(Key, Diag1, Diag2, Diag3, Diag4, Diag5, Diag6)
 ALL.data %<>% select(-Diag1, -Diag2, -Diag3, -Diag4, -Diag5, -Diag6)
 colnames(Diagnosis) <- c('Key','Diag1','Diag2','Diag3','Diag4','Diag5','Diag6')
 DIA <- dcast(melt(Diagnosis ,id.var="Key"), Key ~ value, length) %>% select(-'NA'); dim(DIA)
 
+# Remove unused column
 ALL.data <- list(ALL.data, PCD, DIA) %>% reduce(left_join, by = "Key")
 ALL.data %<>% select(-DATE, -PatientNo, -Key); dim(ALL.data)
 
 #######################################################################################################
 
+# Features
 ALL.data$ASA %<>% as.factor()
 ALL.data$Hypertension %<>% as.factor()
 ALL.data$DivNo %<>% as.factor()
@@ -77,7 +80,7 @@ X_test %<>% as.matrix()
 colnames(X_test) <- Names
 Y_test %<>% unlist()
 
-
+# Parameters for XGB
 XGB = xgb.cv(data = X_train, label = log(Y_train) , nrounds = 1000,
              objective = "reg:squarederror",
              eta = 0.5,
@@ -90,10 +93,8 @@ XGB = xgb.cv(data = X_train, label = log(Y_train) , nrounds = 1000,
 
 which.min(XGB$evaluation_log$test_rmse_mean)
 Nrounds <- which.min(XGB$evaluation_log$test_rmse_mean)
-#Nrounds = 635
 
-
-# build the model
+# Training
 XGB = xgboost(data = X_train, label = log(Y_train) , nrounds = Nrounds,
               objective = "reg:squarederror",
               eta = 0.5,
@@ -103,8 +104,7 @@ XGB = xgboost(data = X_train, label = log(Y_train) , nrounds = Nrounds,
               gamma = 0.25,
               alpha = 1)
 
-##### training set model evaluation
-
+# Model evaluation on training set
 train.pred <- predict(XGB,newdata=X_train)
 train.y    <- log(Y_train)
 
@@ -123,7 +123,7 @@ table(XGB_dist_train)/sum(table(XGB_dist_train))
 
 MAE(Y_train , exp(train.pred))
 
-#### validation set evaluation
+# Model evaluation on validation set
 
 validation.pred <- predict(XGB,newdata=X_validation)
 validation.y    <- log(Y_validation)
@@ -144,7 +144,7 @@ table(XGB_dist_validation)/sum(table(XGB_dist_validation))
 MAE(Y_validation , exp(validation.pred))
 
 
-##### test set evaluation
+# Model evaluation on testing set
 
 test.pred <- predict(XGB,newdata=X_test)
 test.y    <- log(Y_test)
@@ -169,5 +169,5 @@ sum(exp(test.pred))
 sum(abs(Test$in_mins-exp(test.pred)))
 sum(abs(Test$in_mins-exp(test.pred)))/sum(Test$in_mins)
 
-
+# Save XGB model
 saveRDS(XGB, file = "/home/Aaron/Scheduling/Surgery/XGB.rda")
