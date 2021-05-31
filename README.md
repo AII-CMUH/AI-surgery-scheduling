@@ -8,7 +8,7 @@ Many hospitals have encountered challenges in performing efficient scheduling an
 
 ## Instructions and Navigations
 
-For the data processing, please refer to: `Scheduling_Data_Clean.r`; for the model development, please refer to: `Scheduling_Models.R`.
+For data processing, please refer to: `Scheduling_Data_Clean.r`; for model development, please refer to: `Scheduling_Models.r`.
 
 All code files presented in this github can be run with the software and hardware shown in the below list.
 
@@ -27,8 +27,3 @@ The minimum dataset (March to April 2020) used in time-wise evaluation for this 
 
 **Correspondence and requests for materials should be addressed to Jiaxin Yu (email: jiaxin.yu@mail.cmuh.org.tw).**
 
-## Competing interests
-The authors declare that they have no competing interests.
-
-## Acknowledgments
-The authors would like to thank Min-Hsuan Lu and the department of administration and management in CMUH in the assistance of data collection. 
