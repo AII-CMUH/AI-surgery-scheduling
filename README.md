@@ -6,18 +6,6 @@ Many hospitals have encountered challenges in performing efficient scheduling an
 
 **The manuscript for this study is under review. The manuscript will be released once it is ready. The preprint can be found in MedRxiv: https://www.medrxiv.org/content/10.1101/2020.06.10.20127910v1**
 
-## Instructions and Navigations
-
-For data processing, please refer to: `Scheduling_Data_Clean.r`; for model development, please refer to: `Scheduling_Models.r`.
-
-All code files presented in this github can be run with the software and hardware shown in the below list.
-
-### Software and Hardware List
-| Software required                   | Hardware required                        
-| ------------------------------------| -----------------------------------|
-| R version 3.6.3                     | Windows, Mac OS X, and Linux (Any) |
-|  RStudio                            | Windows, Mac OS X, and Linux (Any) |
-
 
 ## Data availability
 
